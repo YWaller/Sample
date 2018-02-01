@@ -1,0 +1,160 @@
+---
+title: "Optimization Samples"
+author: "Yale Waller"
+date: "October 21, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Setup
+```{r, echo=FALSE}
+#install.packages("optrees")
+#install.packages("igraph")
+#install.packages("qgraph")
+require(optrees)
+require(igraph)
+require(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+#Section 1
+``` {r}
+n<-1000
+d<-runif(n*n)
+d[d<0.8]<-NA
+d<-matrix(d,nrow=n,ncol=n)
+diag(d)<-NA
+d[upper.tri(d)]=t(d)[upper.tri(d)]
+str(d)
+nrow(d)
+
+sparsify<-function (x) {
+#progressbar if we want it
+#fog<-txtProgressBar(min = 0, max = nrow(x), style = 3)
+
+#actual function begins here
+nodes<-seq(1,nrow(x),1)
+diag(x)<-NA
+    qqq <- NULL
+        for (i in seq(along = nodes)) {
+		#setTxtProgressBar(fog, i)
+            for (j in i:length(nodes)) {
+                if (!is.na(x[i, j]) && x[i, j] != Inf) {
+                  qqq <- rbind(qqq, c(i, j, x[i, j]))
+                }
+            }
+        }
+      colnames(qqq) <- c("head", "tail", "weight")
+	return(qqq)
+	close(pb)
+    }
+
+d2<-sparsify(d)
+str(d2)
+head(d2)
+```
+
+#Sections 2 & 3
+``` {r}
+n<-250
+x<-round(runif(n)*1000)
+y<-round(runif(n)*1000)
+adjmat<-matrix(,n,n)
+for (i in 1:nrow(adjmat)) {
+	for (q in 1:ncol(adjmat)) {
+	adjmat[i,q]<- sqrt((y[q]-y[i])^2 + (x[q]-x[i])^2)
+	}
+}
+ds<-sparsify(adjmat)
+#str(ds)
+#head(ds)
+
+ds.mst<-msTreePrim(1:n,ds)
+str(ds.mst)
+arclist<-NULL
+```
+
+```{r}
+plot.mst<-function (arclist) {
+	for (i in 1:length(arclist[,1])) {
+	segments(x0=x[arclist[i,1]], y0=y[arclist[i,1]], x1=x[arclist[i,2]],y1=y[arclist[i,2]])
+	}
+
+}
+plot(x,y,pch=16)
+plot.mst(ds.mst$tree.arcs)
+```
+
+#Section 4
+1. The probability of a message falling into enemy hands is the cost. The agents are the nodes, this is a minimum spanning tree since they want to minimize the probability.
+2. The same way we have previously, by creating a sparse matrix with three columns, agents as destination and source nodes, probabilities as costs.
+3. The answer to 'which algorithm' depends greatly upon the setup of the 'agents', Prim's would be better if the graph is dense, with more edges than vertices. That might be the case if all agents are interconnected. However if the graph is sparse, say these are agent hubs in Russia, it might be better to use Kruskal's. However, I would select Prim's given the likelihood of the former.
+4. The computational efficiency is O(|V|^2), assuming an adjacency matrix as the input.
+
+#Section 5.1-5.8
+``` {r}
+#Edge weights
+Duration<-c(90,15,5,20,21,25,14,28,30,45)
+
+#first pass of Bellman-Ford
+arcs<-matrix(c(1,2,-90, 2,3,-15, 7,4,-14, 4,5,-20, 1,6,-90,
+3,7,-5, 6,7,-25, 4,8,-20, 1,9,-90, 4,10,-20, 9,10,-30), ncol=3, byrow=TRUE)
+nodes<-1:10
+minspan<-getShortestPathTree(nodes, arcs, algorithm="Bellman-Ford", directed=TRUE)
+
+#second transposed pass of Bellman-Ford
+arcs<-matrix(c(2,1,-15, 3,2,-5, 4,7,-20, 5,4,-21, 6,1,-25,
+7,3,-14, 7,6,-14, 8,4,-28, 9,1,-30, 10,4,-45, 10,9,-45, 11,5,0, 11,8,0, 11,10,0), ncol=3, byrow=TRUE)
+nodes<-1:11
+minspan2<-getShortestPathTree(nodes, arcs, algorithm="Bellman-Ford", directed=TRUE, source.node=11)
+
+#Construct the table with all the necessary columns
+NodeLabels<-c('A','B','C','D','E','F','G','H','I','J')
+
+#EarliestStart
+EarliestStart<-abs(minspan$distances)
+
+#EarliestFinish
+EarliestFinish<-abs(minspan$distances)+Duration
+
+#LatestFinish
+addmax<-max(EarliestFinish)
+LatestFinish = rep(0, length(Duration))
+for (i in 1:length(Duration)) {
+	LatestFinish[i] = minspan2$distances[i] + addmax
+}
+
+#LatestStart
+LatestStart<-rep(0, length(Duration))
+for (i in 1:length(Duration)){
+	LatestStart[i] = LatestFinish[i]-Duration[i]
+}
+
+#Slack
+Slack<-LatestFinish-EarliestFinish
+
+table<-data.frame(NodeLabels,Duration,EarliestStart,EarliestFinish,LatestStart,LatestFinish,Slack)
+table
+
+print(paste("The Earliest project completion date is ", as.Date('2017-11-01') + max(EarliestFinish)))
+
+```
+
+#5.9
+Below are the Nodes that are first part of the critical path, and those with some flexibility, respectively.
+```{r}
+NodeLabels[which(Slack==0)] #part of the critical path
+NodeLabels[which(Slack!=0)] #flexibility
+```
+
+#5.10, Charting
+```{r}
+barplot(rbind(LatestFinish-Duration,Duration),horiz=TRUE,col=c("white","gray"),
+border=0,names.arg=NodeLabels,las=1,main="Estimated Project Completion Times")
+
+```
+
+
