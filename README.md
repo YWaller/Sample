@@ -5,3 +5,5 @@ They cover topics ranging from random forests, based on decision trees, to pytho
 
 Overall, these were selected to highlight my technical proficiency in SQL, Python, and R.
 
+The Stratego Project folder, another repository I have uploaded, is an ongoing project of mine to program an AI for the boardgame Stratego. 
+
