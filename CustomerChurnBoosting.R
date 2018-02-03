@@ -1,3 +1,5 @@
+#This file just shows a simple boosting example for a customer churn dataset.
+
 rm(list=ls())
 require(rattle)
 require(ada)

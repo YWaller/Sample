@@ -5,6 +5,8 @@ Created on Wed Sep 27 14:05:45 2017
 @author: Yale
 """
 
+#This file demonstrates the implementation of several graph search algorithms.
+
 from math import sqrt, log
 
 #linear search
@@ -25,6 +27,7 @@ print "Linear search:"
 print linearSearch_sqrt(15)
 print sqrt(15)
 
+#Binary search
 def binarySearch(a, target):
     low = 0
     high = len(a) - 1
@@ -50,7 +53,7 @@ print binarySearch(F,target)
 def bisection_search_kth_root(N,k): #standard bisection can be simplified for this case 
     epsilon = 0.001 #rate of change
     bounds = [0, 100000] #set our upper and lower bounds
-    while True: #python has no do while loop...
+    while True: #python has no do while loop, so use while True with careful checking that it won't be infinite
         mid = sum(bounds) / 2.0 #get the midpoint
         print "testing value: {}".format(mid)
         delta = mid**k - N #calculate the difference between our guess (mid**k) and N 
@@ -62,10 +65,12 @@ def bisection_search_kth_root(N,k): #standard bisection can be simplified for th
 print "Testing bisection search for kth root:"
 print bisection_search_kth_root(12,2)
 
+#This bisection search will find the largest number of digits a number can have and still
+#fit on a given drive.
 def bisection_search_lgN(N):
     low = 0
     spaceondrive = N*(2.0**43.0) #take the input and turn it into bytes
-    high = 0.001 #initialize high as low lol
+    high = 0.001 #initialize high as a small number to make sure it gets updated
     epsilon = 1 #rate of change is 1 since factorial/bits
     
     while True:
@@ -89,6 +94,8 @@ def bisection_search_lgN(N):
 print "Testing bisection search for the largest factorial we can fit:"
 print bisection_search_lgN(1) #give number of terabytes of hdd
 
+
+#A simple newton square root for different calculations.
 def newton_sqrt(k):
     epsilon = .001
     y= k / 2.0

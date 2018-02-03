@@ -37,11 +37,15 @@ require(het.test) #this is for vector autoregression of white's test, don't need
 #update.packages()
 #.libloc <<- "C:/Users/Yale/Documents/R/win-library/3.4" #gotta tell R about the directory
 #C:\Users\Yale\Documents\R\win-library\3.4 #restart R before running above
-##this code above will update R and bring all mah packages in
+##this code above will update R and bring all packages in
 
 #######################
 ###BEGIN ACTUAL WORK###
 #######################
+
+#This file represents the culmination of a large project I undertook at one of my jobs
+#It begins by verifying data integrity and regression assumptions, completes the regression,
+#and then goes onto forecasting with time series.
 
 
 #Initial data processing
@@ -56,10 +60,11 @@ head(purchasesurvey)
 head(tractorsales)
 tail(tractorsales, 1) #how to get last value of dataset!
 
-###Question 01###
+#get column means of the purchase survey
 p_survey_means<-colMeans(purchasesurvey, na.rm=TRUE)
 p_survey_means
 
+#a custom function for calculating column standard deviations
 colSDs<-function(x, na.rm=TRUE) {
   if (na.rm) {
     n <- colSums(!is.na(x))
@@ -68,7 +73,7 @@ colSDs<-function(x, na.rm=TRUE) {
   }
   colVar <- colMeans(x*x, na.rm=na.rm) - (colMeans(x, na.rm=na.rm))^2
   return(sqrt(colVar * n/(n-1)))
-} ##all this gets the standard deviations of the columns, as a new function
+}
 
 p_survey_sds<-colSDs(purchasesurvey)
 p_survey_sds
@@ -83,26 +88,22 @@ purchasesurvey$buying.type[purchasesurvey$buying.type>3]<- NA #do these then re-
 par(mar=c(9,6,4,1)) #bottom, left, top, right margin sizes
 barplot(p_survey_means[-1],col=rainbow(13),beside=TRUE,ylab="Mean, various scales",main="Means of Survey Response Items",las=2,cex.names=1)
 title(xlab="Survey Item", line=6.5) #moves the xlab down
-#bp_inter<-barplot(p_survey_means[-1],col=rainbow(13),beside=TRUE,xlab="Survey Item",ylab="Mean, various scales",main="Means of Survey Response Items",names.arg="")
-#vps <- baseViewports()
-#pushViewport(vps$inner, vps$figure, vps$plot)
-#grid.text(names(p_survey_means[-1]),
-#    x = unit(bp_inter, "native"), y=unit(-1, "lines"),
-#    just="right", rot=30)
-#popViewport(3) ##get right-rotated text for barplot, commented out above stuff does it bloody wrong but might be useful in the future
+
+#melt the data into the proper form
 melted_ps<-melt(purchasesurvey[-1], na.rm=TRUE)
+#use stargazer to get html table output
 stargazer(moments::kurtosis(purchasesurvey[-c(11:14)], na.rm=TRUE),type="html",title="Kurtosis",flip=TRUE)
 stargazer(skewness(purchasesurvey[-c(11:14)], na.rm=TRUE),type="html",title="Purchase Survey Skewness", flip= TRUE) #use flip to make it long instead of wide
 ggplot(melted_ps, aes(x=value, fill=variable)) + geom_histogram(binwidth=.5)+ facet_grid(variable~.)
 hist(purchasesurvey$usage.level,breaks=50)
-dip(purchasesurvey$usage.level) #Hartigan's dip test oh boy
+dip(purchasesurvey$usage.level) #Hartigan's dip test
 
 Melted_Data<-melt(purchasesurvey[-1])
 str(Melted_Data)
 p <- ggplot(Melted_Data, aes(factor(variable), value)) 
 p + geom_boxplot(fill="grey80",color="blue") + ggtitle("Boxplots of Purchase Survey Items") + labs(x="Survey Item",y="")  ## + facet_wrap(~variable, scale="free") 
 
-###Question 02###
+
 #ANOVA is an omnibus test statistic and cannot tell you which specific groups were statistically significantly different from each other, only that at least two groups were. To determine which specific groups differed from each other, you need to use a post hoc test.
 str(purchasesurvey) #usage level is PLE use % and satisfaction level is customer satisfaction
 reguse<-purchasesurvey[-c(1,10)]
@@ -121,15 +122,11 @@ bptest(reguse.mod) #data suffer from heteroskedasticity
 
 par(mfrow=c(2,2)) # init 4 charts in 1 panel
 plot(reguse.mod)## the residual plot looks good, not much shift off the expected line
-#qqnorm plot is likewise acceptable, the tails being off is very typical
-#the bottom left plot shows that there is in fact some heteroskedasticity, particularly at the end.
-#In the residuals vs leverage plot, we see that while two points towards the end do pull the relationship off, they do not have a large Cook's distance, and so do not affect the data disproportionately. These are most likely the few outliers noted earlier in the initial data exploration.
-#STILL NEED TO DO INTERPRETATION, BUT THESE FOUR GRAPHS SHOW THAT THE ASSUMPTIONS ARE NOT VIOLATED EXCESSIVELY
 
 regcust.mod<-lm(regcust$satisfaction.level~.,data=regcust)
 summary(regcust.mod)
 stargazer(regcust.mod, title="Regression Output for PLE Customer Satisfaction", type="html")
-bptest(regcust.mod) #more than the other one
+bptest(regcust.mod) #larger result than former
 par(mfrow=c(2,2))
 plot(regcust.mod)
 #scale-location shows that the residuals remain roughly standard for increasing x values
@@ -140,6 +137,8 @@ vif(reguse.mod) #overall service, price level, delivery speed, and purchasing st
 vif(regcust.mod) #the same ones exhibit multicollinearity
 stargazer(vif(reguse.mod), type="html", title="VIFs for Usage Level Regression")
 stargazer(vif(regcust.mod), type="html", title="VIFs for Customer Satisfaction Regression")
+
+#this makes a graph with all the scatterplots on the bottom and the significances above
 
 panel.cor<- function(x, y, digits = 2, cex.cor, ...)
 {
@@ -157,8 +156,7 @@ panel.cor<- function(x, y, digits = 2, cex.cor, ...)
   txt2<- paste("p= ", txt2, sep = "")
   if(p<0.01) txt2 <- paste("p= ", "<0.01", sep = "")
   text(0.5, 0.4, txt2)
-} #this makes a graph with all the scatterplots on the bottom and the significances above
-
+} 
 pairs(regcust, upper.panel = panel.cor)
 pairs(reguse, upper.panel = panel.cor)
 
@@ -169,8 +167,7 @@ cor(regcust[1:7],use="complete.obs")
 pairs(regcust[1:7])
 
 
-
-
+#Below are the forecasting methods and results
 
 ###time series###
 tractorts<-ts(tractorsales[-1], start=c(2010,1), end=c(2014,12), frequency=12)
@@ -208,7 +205,6 @@ accuracy(chiets)
 accuracy(worldets) #mean absolute error gives the error in number of units, the Mean Average Percentage Error gives how much percent you're off on average
 
 #when checking residuals, if the mean is non zero and is m, add m to all forecasts.
-#
 naets$mae
 naets
 forecast(naets, 5)
@@ -232,7 +228,7 @@ mtext("World")
 checkresiduals(worldets)
 
 
-##logistic to determine if data are missing at random or missing not at random
+#logistic to determine if data are missing at random or missing not at random
 missinglogtest<- as.data.frame(abs(is.na(purchasesurvey$product.quality)))
 missinglogtest<-cbind(missinglogtest, purchasesurvey)
 str(missinglogtest)

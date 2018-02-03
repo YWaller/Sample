@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 #import ast
 #import json
 
+#This file demonstrates webscraping HTML based pages.
+
 #try: urlopen('http://publicinterestlegal.org/county-list/')
 #except urllib2.URLError as e:
 #    print e.reason, e.errno

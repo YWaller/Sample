@@ -1,7 +1,7 @@
 rm(list=ls())
-###########################################################
-### Use the glm function to perform logistic regression ###
-###########################################################
+
+#This simply demonstrates the use of logistic regression, or classification, and a confusion matrix.
+
 #Get the data into a data frame
 data<-read.table("LogisticsRegressionExample1DataInR.txt",sep="\t",header=T,stringsAsFactors=F)
 #Display breakdown of the purchase variable

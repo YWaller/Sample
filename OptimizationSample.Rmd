@@ -5,6 +5,9 @@ date: "October 21, 2017"
 output: pdf_document
 ---
 
+#This document demonstrates my knowledge of R markdown, as well as various optimization methods.
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -30,6 +33,9 @@ diag(d)<-NA
 d[upper.tri(d)]=t(d)[upper.tri(d)]
 str(d)
 nrow(d)
+
+#this function is a custom function that turns a matrix into a sparse matrix for faster computation times.
+#the one included in the igraph package was far too slow.
 
 sparsify<-function (x) {
 #progressbar if we want it
@@ -57,8 +63,9 @@ str(d2)
 head(d2)
 ```
 
-#Sections 2 & 3
 ``` {r}
+
+#create some simulated data.
 n<-250
 x<-round(runif(n)*1000)
 y<-round(runif(n)*1000)
@@ -72,6 +79,7 @@ ds<-sparsify(adjmat)
 #str(ds)
 #head(ds)
 
+#run the minimum spanning tree algorithm (Prim's)
 ds.mst<-msTreePrim(1:n,ds)
 str(ds.mst)
 arclist<-NULL
@@ -88,14 +96,9 @@ plot(x,y,pch=16)
 plot.mst(ds.mst$tree.arcs)
 ```
 
-#Section 4
-1. The probability of a message falling into enemy hands is the cost. The agents are the nodes, this is a minimum spanning tree since they want to minimize the probability.
-2. The same way we have previously, by creating a sparse matrix with three columns, agents as destination and source nodes, probabilities as costs.
-3. The answer to 'which algorithm' depends greatly upon the setup of the 'agents', Prim's would be better if the graph is dense, with more edges than vertices. That might be the case if all agents are interconnected. However if the graph is sparse, say these are agent hubs in Russia, it might be better to use Kruskal's. However, I would select Prim's given the likelihood of the former.
-4. The computational efficiency is O(|V|^2), assuming an adjacency matrix as the input.
-
-#Section 5.1-5.8
 ``` {r}
+
+#Calculate a minimum spanning tree using Bellman-Ford
 #Edge weights
 Duration<-c(90,15,5,20,21,25,14,28,30,45)
 
@@ -113,6 +116,10 @@ minspan2<-getShortestPathTree(nodes, arcs, algorithm="Bellman-Ford", directed=TR
 
 #Construct the table with all the necessary columns
 NodeLabels<-c('A','B','C','D','E','F','G','H','I','J')
+
+#Calculate various metrics related to the tree.
+#This implementation was for a project scheduling project, given expected times of completion and completion orders of tasks.
+
 
 #EarliestStart
 EarliestStart<-abs(minspan$distances)
@@ -133,7 +140,7 @@ for (i in 1:length(Duration)){
 	LatestStart[i] = LatestFinish[i]-Duration[i]
 }
 
-#Slack
+#Slack, calculate the slack in the times
 Slack<-LatestFinish-EarliestFinish
 
 table<-data.frame(NodeLabels,Duration,EarliestStart,EarliestFinish,LatestStart,LatestFinish,Slack)
@@ -143,8 +150,7 @@ print(paste("The Earliest project completion date is ", as.Date('2017-11-01') + 
 
 ```
 
-#5.9
-Below are the Nodes that are first part of the critical path, and those with some flexibility, respectively.
+#Below are the Nodes that are first part of the critical path, and those with some flexibility, respectively.
 ```{r}
 NodeLabels[which(Slack==0)] #part of the critical path
 NodeLabels[which(Slack!=0)] #flexibility

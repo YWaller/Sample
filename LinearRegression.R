@@ -1,11 +1,9 @@
 rm(list=ls())
-#######################################
-#### Linear Regression ################
-#######################################
 
-####################################################
-### ISLR Lab Part 1: Simple Linear Regression ######
-####################################################
+#This is a simple file that demonstrates linear, and subsequently multi, regression
+#I am also familiar with regression splines and various other functional regressions like cubic, quadratic, etc.
+
+
 require(MASS)    #Contains the Boston data frame
 require(ISLR)    
 ### Investigate the Boston data frame
@@ -29,7 +27,7 @@ coef(lm.fit)
 confint(lm.fit)   ## For CIs for parameters - default is 95%
 confint(lm.fit,level=.99)
 predict(lm.fit,data.frame(lstat=(c(5,10,15))), interval="confidence")    ### For CIs of points, create a dataframe with a column of three points; confidence interval of doing it a million times, the epsilon will be reduced as much as you can this way
-predict(lm.fit,data.frame(lstat=(c(5,10,15))), interval="prediction")    ### For PIs of points, if you only took one sample, what's your prediction there? You get the real point but also epsilon so these are two different intervals
+predict(lm.fit,data.frame(lstat=(c(5,10,15))), interval="prediction")    ### For PIs of points, You get the real point but also epsilon so these are two different intervals
 #notice the fit for the line is the same for both
 plot(Boston$lstat,Boston$medv)
 abline(lm.fit,lwd=3,col="red")
@@ -44,10 +42,8 @@ plot(hatvalues(lm.fit))                  ### Plots leverage of points
 which.max(hatvalues(lm.fit))             ### Find highest-leverage point
 par(mfrow=c(1,1))                        ### Reset graphics window, good hygiene
 
-##Assessing the accuracty of the coefficient estimates
-### Using the expressions in equation 3.4 on page 62 of ISLR, compute the least squares 
-## estimators for a linear regression model that regresses median house value (medv) on percentage 
-## of households with low socioeconomic status (lstat). Slide 7.
+##Assessing the accuracy of the coefficient estimates
+### Compute the least squares of the estimators for a linear regression model that regresses median house value (medv) on percentage of households with low socioeconomic status (lstat).
 lm.fit<-lm(medv~lstat,data=Boston)    #For comparison
 summary(lm.fit)
 beta1hat<-sum((Boston$lstat-mean(Boston$lstat))*(Boston$medv-mean(Boston$medv)))/sum((Boston$lstat-mean(Boston$lstat))^2)  #Slide 6
@@ -55,39 +51,37 @@ beta1hat
 beta0hat<-mean(Boston$medv)-beta1hat*mean(Boston$lstat)
 beta0hat
 n<-nrow(Boston)
-##Calculate the RSS - Slide 24
+##Calculate the RSS
 RSS<-sum((lm.fit$residuals)^2)
 RSSalt<-sum((Boston$medv-(beta0hat+beta1hat*Boston$lstat))^2)   ###Same thing another way
 RSS
 RSSalt
-##Calculate the RSE (Residual Standard Error)  Slide 14
+##Calculate the RSE (Residual Standard Error)
 RSE<-sqrt(RSS/(n-2))
 RSE
-##Calculating the standard error of the intercept - Slide 13
+##Calculating the standard error of the intercept
 se0<-sqrt(RSE^2*(1/n+mean(Boston$lstat)^2/sum((Boston$lstat-mean(Boston$lstat))^2)))
 se0
 ##Calculating the standard error of the slope
 se1<-sqrt(RSE^2/sum((Boston$lstat-mean(Boston$lstat))^2))
 se1
-##Construct a 95% confidence interval for the slope parameter Slide 15
+##Construct a 95% confidence interval for the slope parameter
 confint(lm.fit,level=.95) #remember t value is just point divided by its standard error
 myconfint<-c(beta1hat-qt(.975,n-2)*se1,beta1hat+qt(.975,n-2)*se1) #remember that .95 means each side of the distribution gets 2.5 of that 5%. Qt(.975 asks for the point such that 97.5% of the data is on the other side of it
 myconfint #the p value is telling you the likelihood that your null is true with the sample's apparent distribution, how close those likely distributions are
-##Conduct a hypothesis test of H0:beta1=0 H1:beta1<>0 Slide 19
+##Conduct a hypothesis test of H0:beta1=0 H1:beta1<>0
 tstat<-beta1hat/se1
 tstat
 pvalue<-2*pt(tstat,n-2)
 pvalue
 ##Reject H0 since pvalue is VERY small
-##Calculate TSS (Slide 24) and r-squared Slide 27
+##Calculate TSS and r-squared
 TSS<-sum((Boston$medv-mean(Boston$medv))^2)
 TSS
 rsquared<-1-RSS/TSS
 rsquared
 cor(Boston$lstat,Boston$medv)^2   #For simple regression, R-squared is the square of the correlation coefficient between x and y
-######################################################
-### ISLR Lab: Multiple Linear Regression ######
-######################################################
+
 lm.fit=lm(medv~lstat+age,data=Boston)  # Basic syntax is lm(y~a+b+c)
 summary(lm.fit)
 lm.fit=lm(medv~.,data=Boston)          # the "." is shorthand for "everything"
@@ -98,9 +92,7 @@ vif(lm.fit)                            # displays variance inflation factors. VI
 lm.fit1=lm(medv~.-age,data=Boston)     # Excludes age
 summary(lm.fit1)                                             
 lm.fit1=update(lm.fit, ~.-age)         # achieves same result
-#######################################
-### ISLR Lab: Regression Extensions  ##
-#######################################
+#Extension of regression
 # Interaction Terms
 summary(lm(medv~lstat*age,data=Boston))
 # Non-linear Transformations of the Predictors

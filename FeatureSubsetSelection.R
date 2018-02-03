@@ -4,6 +4,11 @@ library(ISLR)
 require(leaps)
 data<-mtcars
 data2<-na.omit(Hitters)
+
+#This file demonstrates the use of various subset selection methods for choosing which features to use in regression.
+#It can be very useful to implement when there are many, many features available.
+
+
 ####################best
 ##########mtcars
 reg1<-regsubsets(mpg~.,

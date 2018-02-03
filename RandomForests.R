@@ -2,6 +2,8 @@ rm(list=ls())
 
 #install.packages("randomForest")
 
+#This file demonstrates the construction of a random forest, based on decision trees; this method is a type of bootstrap aggregation, or bagging.
+
 require(randomForest)
 weather<-read.table("myweatherdata.csv",sep=",",header=T)
 dim(weather)

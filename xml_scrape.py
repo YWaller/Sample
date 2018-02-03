@@ -2,6 +2,8 @@
 from lxml import etree
 import urllib2
 
+#A simple example demonstrating xml scraping.
+
 urlstart = "https://www.ncdc.noaa.gov/temp-and-precip/climatological-rankings/download.xml?parameter=tavg&state="
 period = "6"
 belt = "44" #VA

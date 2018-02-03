@@ -2,7 +2,9 @@ require(plyr)
 require(RMySQL)
 require(pracma)
 
-con<-dbConnect(RMySQL::MySQL(), dbname = 'final', username = 'root', password = 'kergistan')#I set this password in freshman year it is linked to nothing else
+#This is a simple script demonstrating that R can be used to connect to a database.
+
+con<-dbConnect(RMySQL::MySQL(), dbname = '', username = '', password = '')
 dbListTables(con)
 dc<-(df<-dbGetQuery(con, 'select * from wm_dcs'))
 st<-(df<-dbGetQuery(con, 'select * from wm_stores'))

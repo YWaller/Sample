@@ -16,11 +16,11 @@ db = mysql.connect(user = 'root', passwd = 'redacted', host = 'localhost', db = 
 cursor = db.cursor()
 
 store = {}
-cursor.execute('select * from store LIMIT 4')
+cursor.execute('select * from store')
 for row in cursor.fetchall():
     store[row[0]] = row[1]   
 dc = {}
-cursor.execute('select * from dc LIMIT 4')
+cursor.execute('select * from dc')
 for row in cursor.fetchall():
     dc[row[0]] = row[1]    
 mileage = {}
@@ -67,7 +67,7 @@ m.setObjective(quicksum(store[j] * decision_bi[i][j] * (mileage[(i,j)] * decisio
 m.update()
 
 m.optimize()
-'''
+
 #Make two lists, one with the variable string names one with the binary 1s and 0s
 temp_list=[]
 for var in m.getVars():
@@ -113,5 +113,5 @@ for i in range(len(onlyneeded)):
 for i in range(len(stlisting)):
     cursor.execute('insert into results values (%s, %s)',(dclisting[i], stlisting[i]))
 db.commit()
-'''
+
 cursor.close()
