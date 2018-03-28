@@ -110,13 +110,10 @@ png("correlation.png", width=900, height=700)
 plot(corr, main = "Correlation of Private and Public Construction per Quarter")
 dev.off()
 
-#Run a regressio on the public dat with private
+#Run a regression on the public data with private as a lag variable
 datafs<-dynlm(drop(as.numeric(dataqtr$Public)) ~ lag(drop(as.numeric(dataqtr$Private)),-10), dataqtr)
 summary(datafs)
 plot(datafs)
-
-#https://anomaly.io/detect-correlation-time-series/
-#maybe useful someday
 
 #create an html table of the output
 stargazer(datafs, type="html")
