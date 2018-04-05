@@ -15,8 +15,6 @@ BinpackingHeuristic.py: This custom binpacking heuristic is simple yet powerful,
 
 ClusterAnalysis-Demo.xlsm: an excel workbook with heavy VBA macros that demonstrates using excel for clustering.
 
-CNNTflow.py: This is a (python) implementation of a convolutional neural network using tensorflow-gpu. 
-
 CustomerChurnBoosting.R: This is an R implementation of tree and forest-based methods for customer churn detection.
 
 FeatureSubsetSelection.R: Demonstrates automated methods for selecting the best (depending on desired metrics) features, or variables, in a dataset.
