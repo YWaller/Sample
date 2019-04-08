@@ -3,7 +3,9 @@ This folder contains a series of scripts I have made in various languages to giv
 In picking these I had to choose from a broad range, so one or two are selected from various domains.
 They're sorted in roughly alphabetical order.
 
-They cover topics ranging from random forests, based on decision trees, to python scripts that demonstrate the use of industrial grade optimization software.
+Also on my github is a StrategoAI project, where I applied neural networks to the imperfect information boardgame stratego. This required generating tens of millions of board states, through self-play and those few I could get by contacting a German webmaster who ran a Stratego website, and training the AI which were most likely to lead to victory.                                                                                                             
+
+Anyways, the samples here cover topics ranging from random forests, based on decision trees, to python scripts that demonstrate the use of industrial grade optimization software.
 
 Overall, these were selected to highlight my technical proficiency in SQL, Python, and R.
 
